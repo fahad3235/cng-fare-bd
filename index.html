@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CNG Fare BD — CNG Auto-Rickshaw Meter Fare Estimator</title>
+<meta name="description" content="Know the official BRTA meter fare for CNG auto-rickshaws in Dhaka before you ride. Calculator, overcharge checker, fare table and trip log — offline, bilingual EN/বাংলা.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="wrap topbar-in">
+    <div>
+      <h1>🛺 CNG Fare BD</h1>
+      <p class="tagline" data-i18n="tagline">Know the meter fare before you ride.</p>
+    </div>
+    <button id="langBtn" class="lang-btn" type="button">বাংলা</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="card" aria-labelledby="calcTitle">
+    <h2 id="calcTitle" data-i18n="calcTitle">Fare calculator</h2>
+    <div class="grid2">
+      <label class="field">
+        <span data-i18n="distance">Distance (km)</span>
+        <input id="kmInput" type="number" min="0" max="200" step="0.1" inputmode="decimal" data-i18n-ph="distancePh" placeholder="e.g. 8.5">
+      </label>
+      <label class="field">
+        <span data-i18n="waiting">Waiting (minutes)</span>
+        <input id="waitInput" type="number" min="0" max="600" step="1" inputmode="numeric" data-i18n-ph="waitingPh" placeholder="e.g. 10">
+      </label>
+    </div>
+    <p class="err" id="calcErr" role="alert" hidden></p>
+    <button id="calcBtn" class="btn primary" type="button" data-i18n="calcBtn">Calculate meter fare</button>
+    <div id="calcResult" class="result" hidden>
+      <div class="result-label" data-i18n="meterFare">Meter fare</div>
+      <div class="result-value" id="fareValue">—</div>
+      <div class="result-sub" id="fareBreakdown"></div>
+    </div>
+    <p class="note" data-i18n="minFareNote">Minimum fare is Tk 40 (first 2 km).</p>
+  </section>
+
+  <section class="card" aria-labelledby="routesTitle">
+    <h2 id="routesTitle" data-i18n="routesTitle">Popular Dhaka routes</h2>
+    <p class="note" data-i18n="routesNote">Distances are approximate — the meter is what you should pay. Tap a route to load it.</p>
+    <div id="routeList" class="route-list"></div>
+  </section>
+
+  <section class="card" aria-labelledby="overTitle">
+    <h2 id="overTitle" data-i18n="overTitle">Was I overcharged?</h2>
+    <label class="field">
+      <span data-i18n="demanded">Fare the driver demanded (Tk)</span>
+      <input id="demandedInput" type="number" min="0" step="1" inputmode="numeric" data-i18n-ph="demandedPh" placeholder="e.g. 150">
+    </label>
+    <p class="note" id="overHint">Use the distance and waiting above.</p>
+    <p class="err" id="overErr" role="alert" hidden></p>
+    <button id="checkBtn" class="btn primary" type="button" data-i18n="checkBtn">Check overcharge</button>
+    <div id="overResult" class="result" hidden>
+      <div class="result-value" id="overValue">—</div>
+      <div class="result-sub" id="overDetail"></div>
+    </div>
+    <p class="note law" data-i18n="lawNote">Under the Road Transport Act 2018 (s. 35(3) &amp; s. 81), a driver must charge by the meter and cannot demand more. Overcharging can mean a fine of up to Tk 50,000 and/or up to 6 months’ jail. Complain to BRTA (brta.gov.bd). Note: BRTA withdrew its Feb 2025 enforcement drive order on 16 Feb 2025 — the fare itself is unchanged.</p>
+  </section>
+
+  <section class="card" aria-labelledby="tableTitle">
+    <h2 id="tableTitle" data-i18n="tableTitle">Meter fare table (0 waiting)</h2>
+    <p class="note" data-i18n="tableNote">Tk 40 for the first 2 km, then Tk 12 per km.</p>
+    <div class="table-wrap">
+      <table id="fareTable">
+        <thead><tr><th data-i18n="distance">Distance (km)</th><th data-i18n="meterFare">Meter fare</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="logTitle">
+    <h2 id="logTitle" data-i18n="logTitle">My trip log</h2>
+    <div class="grid2">
+      <label class="field">
+        <span data-i18n="from">From</span>
+        <input id="fromInput" type="text" maxlength="80" data-i18n-ph="fromPh" placeholder="e.g. Dhanmondi">
+      </label>
+      <label class="field">
+        <span data-i18n="to">To</span>
+        <input id="toInput" type="text" maxlength="80" data-i18n-ph="toPh" placeholder="e.g. Gulshan">
+      </label>
+    </div>
+    <label class="field">
+      <span data-i18n="paid">Amount paid (Tk)</span>
+      <input id="paidInput" type="number" min="0" step="1" inputmode="numeric" data-i18n-ph="paidPh" placeholder="e.g. 120">
+    </label>
+    <p class="err" id="logErr" role="alert" hidden></p>
+    <button id="logBtn" class="btn primary" type="button" data-i18n="logBtn">Log this trip</button>
+    <div id="logSummary" class="summary" hidden></div>
+    <div id="logList" class="log-list"></div>
+    <p class="empty" id="logEmpty" data-i18n="logEmpty">No trips logged yet. Log a trip after your ride to track what you paid vs the meter.</p>
+    <div class="row">
+      <button id="exportBtn" class="btn" type="button" data-i18n="exportBtn">Export JSON</button>
+      <button id="clearBtn" class="btn danger" type="button" data-i18n="clearBtn">Erase all</button>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p data-i18n="footer">Official BRTA meter fare (revised Nov 2015, still current per TBS Feb 2025): Tk 40 first 2 km, Tk 12/km after, Tk 2/min waiting. Route distances are approximate. This app is an educational estimator, not legal advice — the meter reading is the fare.</p>
+  </footer>
+</main>
+
+<script src="logic.js"></script>
+<script src="i18n.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
